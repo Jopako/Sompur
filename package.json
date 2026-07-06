@@ -1,6 +1,11 @@
 {
   "name": "meu-app",
   "version": "1.0.0",
+  "description": "Sompur - um player de música desktop.",
+  "author": {
+    "name": "João Paulo Kowalski",
+    "email": "173004112+Jopako@users.noreply.github.com"
+  },
   "main": "main.js",
   "scripts": {
     "start": "electron .",
