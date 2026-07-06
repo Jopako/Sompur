@@ -162,7 +162,11 @@ ipcMain.handle("atualizar-musica", (_, dados) => {
   return true;
 });
 
-require("electron-reload")(__dirname);
+if (!app.isPackaged) {
+  try {
+    require("electron-reload")(__dirname);
+  } catch (_) {}
+}
 
 app.setName("Sompur");
 app.setAppUserModelId("com.spotiby.app");

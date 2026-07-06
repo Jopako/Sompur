@@ -5,19 +5,24 @@
   "scripts": {
     "start": "electron .",
     "pack": "electron-builder --dir",
-    "dist": "electron-builder"
+    "dist": "electron-builder",
+    "postinstall": "electron-builder install-app-deps"
   },
   "build": {
     "appId": "com.Sompur.app",
     "productName": "Sompur",
     "directories": {
-      "output": "dist"
+      "output": "dist",
+      "buildResources": "build"
     },
-    "buildResources": "build",
     "files": [
       "src/**/*",
       "main.js",
       "package.json"
+    ],
+    "asar": true,
+    "asarUnpack": [
+      "node_modules/better-sqlite3/**/*"
     ],
     "mac": {
       "icon": "build/icons/icon.icns",
