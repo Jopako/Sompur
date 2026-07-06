@@ -86,13 +86,14 @@ body {
 
 .drawer-item {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 10px;
   background: none;
   border: none;
   color: #d1a0ff;
   font-family: "Inconsolata", monospace;
   font-size: 0.95em;
+  line-height: 1.3;
   padding: 10px 12px;
   border-radius: 10px;
   cursor: pointer;
@@ -107,7 +108,9 @@ body {
 .drawer-icon {
   font-size: 1.1em;
   width: 20px;
+  flex-shrink: 0;
   text-align: center;
+  line-height: 1.3;
 }
 
 
@@ -470,9 +473,32 @@ body {
   cursor: pointer;
   transition: background 0.15s;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .bib-edit:hover {
   background: rgba(157, 56, 255, 0.2);
+}
+
+.bib-edit-icon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background-color: #b883ff;
+  -webkit-mask-image: url("Assets/pen.png");
+  mask-image: url("Assets/pen.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  pointer-events: none;
+  transition: background-color 0.15s;
+}
+.bib-edit:hover .bib-edit-icon {
+  background-color: #fff;
 }
 
 .bib-play {
@@ -485,9 +511,32 @@ body {
   cursor: pointer;
   transition: background 0.15s;
   flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .bib-play:hover {
   background: rgba(157, 56, 255, 0.2);
+}
+
+.bib-play-icon {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  background-color: #b883ff;
+  -webkit-mask-image: url("Assets/play.png");
+  mask-image: url("Assets/play.png");
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  pointer-events: none;
+  transition: background-color 0.15s;
+}
+.bib-play:hover .bib-play-icon {
+  background-color: #fff;
 }
 
 .bib-del {
@@ -791,4 +840,44 @@ p {
   padding: 10px 12px;
   border-radius: 10px;
   text-align: center;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+#drawer-p:hover {
+  background: rgba(157, 56, 255, 0.15);
+  color: #fff;
+}
+
+.dev-modal-text {
+  font-size: 0.92em;
+  line-height: 1.6;
+  color: #e0c0ff;
+  margin-bottom: 1.1rem;
+}
+
+.dev-github-link {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: fit-content;
+  padding: 8px 14px;
+  border-radius: 8px;
+  border: 1px solid rgba(157, 56, 255, 0.35);
+  color: #f0deff;
+  text-decoration: none;
+  font-family: "Inconsolata", monospace;
+  font-size: 0.88em;
+  transition: background 0.15s, box-shadow 0.15s;
+}
+
+.dev-github-link:hover {
+  background: rgba(157, 56, 255, 0.15);
+  box-shadow: 0 0 14px rgba(191, 54, 232, 0.4);
+}
+
+.dev-github-link svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
+  flex-shrink: 0;
 }

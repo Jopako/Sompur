@@ -1,4 +1,4 @@
-const { ipcRenderer } = require("electron");
+const { ipcRenderer, shell } = require("electron");
 
 document.addEventListener("DOMContentLoaded", async function () {
 
@@ -39,6 +39,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   const btnAbrirModal    = document.getElementById("btnAbrirModal");
   const btnVerBiblioteca = document.getElementById("btnVerBiblioteca");
   const btnDesabilitarMov= document.getElementById("btnDesabilitarMov");
+  const movTexto         = document.getElementById("movTexto");
 
   const modalOverlay    = document.getElementById("modalOverlay");
   const modalClose      = document.getElementById("modalClose");
@@ -64,6 +65,12 @@ document.addEventListener("DOMContentLoaded", async function () {
   const modalBiblioteca = document.getElementById("modalBiblioteca");
   const bibClose        = document.getElementById("bibClose");
   const listaMusicas    = document.getElementById("listaMusicas");
+
+  const drawerP       = document.getElementById("drawer-p");
+  const btnLogoDev    = document.getElementById("btnLogoDev");
+  const modalDev      = document.getElementById("modalDev");
+  const devClose      = document.getElementById("devClose");
+  const devGithubLink = document.getElementById("devGithubLink");
 
   const modalEditar            = document.getElementById("modalEditar");
   const editarClose            = document.getElementById("editarClose");
@@ -262,8 +269,8 @@ document.addEventListener("DOMContentLoaded", async function () {
           <strong>${m.titulo}</strong>
           <small>${m.autor || "Artista desconhecido"}</small>
         </div>
-        <button class="bib-play" title="Tocar agora">▶</button>
-        <button class="bib-edit" title="Editar" data-id="${m.id}">✏</button>
+        <button class="bib-play" title="Tocar agora"><span class="bib-play-icon"></span></button>
+        <button class="bib-edit" title="Editar" data-id="${m.id}"><span class="bib-edit-icon"></span></button>
         <button class="bib-del"  title="Remover" data-id="${m.id}">✕</button>
       </div>
     `).join("");
@@ -272,13 +279,14 @@ document.addEventListener("DOMContentLoaded", async function () {
     listaMusicas.querySelectorAll(".bib-play").forEach((btn) => {
       btn.addEventListener("click", () => {
         const item = btn.closest(".bib-item");
-        songs = songs.filter((s) => !s.isPlaceholder);
+        const idClicada = Number(item.dataset.id);
+        songs = songs.filter((s) => !s.isPlaceholder && s.id !== idClicada);
         songs.unshift({
           title:  item.dataset.titulo,
           author: item.dataset.autor,
           audio:  item.dataset.caminho,
           image:  item.dataset.capa || "",
-          id:     Number(item.dataset.id),
+          id:     idClicada,
         });
         currentIndex = 0;
         loadSong(0);
@@ -336,6 +344,24 @@ document.addEventListener("DOMContentLoaded", async function () {
   bibClose.addEventListener("click", () => modalBiblioteca.classList.remove("open"));
   modalBiblioteca.addEventListener("click", (e) => {
     if (e.target === modalBiblioteca) modalBiblioteca.classList.remove("open");
+  });
+
+//modal sobre o desenvolvedor
+  drawerP.addEventListener("click", () => {
+    fecharDrawer();
+    modalDev.classList.add("open");
+  });
+  btnLogoDev.addEventListener("click", () => {
+    fecharDrawer();
+    modalDev.classList.add("open");
+  });
+  devClose.addEventListener("click", () => modalDev.classList.remove("open"));
+  modalDev.addEventListener("click", (e) => {
+    if (e.target === modalDev) modalDev.classList.remove("open");
+  });
+  devGithubLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    shell.openExternal("https://github.com/Jopako/Sompur");
   });
 
  
@@ -450,7 +476,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   async function abrirConfigMov() {
     fecharDrawer();
     movimentacaoHabilitada = !movimentacaoHabilitada;
-    btnDesabilitarMov.textContent = "⚙ " + (movimentacaoHabilitada ? "Desabilitar Movimentação" : "Habilitar Movimentação");
+    movTexto.textContent = movimentacaoHabilitada ? "Desabilitar Movimentação" : "Habilitar Movimentação";
     if (!movimentacaoHabilitada) {
       card.style.transform = "perspective(600px) rotateX(0deg) rotateY(0deg)";
     }
