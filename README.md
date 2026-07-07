@@ -4,7 +4,7 @@
   ![Sompur](src/Assets/sompur.png)
 
  
-<p> Sompur é um aplicativo desktop para reprodução de arquivos MP3. Adicione sua música desejada como quiser, mude a capa, seu nome e autor. Fiz esse projeto justamente para ouvir as músicas que eu amo com a cara que eu gosto. Baixe manualmente o mp3 e a capa, os adicione ao Sompur, parece retrógrado? Sim, mas acaba que dou muito mais valor a música que escuto quando é feito esse processo de cuidado e ajustes. Espero que sinta o mesmo. </p>
+<p> Sompur é um aplicativo desktop para reprodução de arquivos MP3. Adicione suas músicas do jeito que preferir, personalize a capa, o nome e o autor. Criei este projeto para ouvir as músicas que amo com a identidade que eu queria. Baixe manualmente o MP3 e a capa e adicione tudo ao Sompur. Parece retrógrado? Talvez. Mas esse pequeno processo faz com que cada música receba mais atenção e tenha um significado especial. Espero que você aproveite essa experiência tanto quanto eu. </p>
 
 </div>
 
