@@ -6,7 +6,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     title: "",
     author: "",
     audio: "",
-    image: "Photo/fundo.webp",
+    image: "Assets/fundo.webp", 
     isPlaceholder: true,
   };
 
