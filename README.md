@@ -102,6 +102,8 @@
 ### Play <img width="32" height="32" alt="play" src="https://github.com/user-attachments/assets/016995da-11af-4ff8-89c3-8945394e11f3" />
 ### Avançar  <img width="32" height="32" alt="play aseprite" src="https://github.com/user-attachments/assets/a2b4f22f-45eb-4a24-be88-19b227fb7662" />
 ### Retroceder <img width="32" height="32" alt="playLeft aseprite" src="https://github.com/user-attachments/assets/77d61b48-3c9a-4f88-922b-065e3cb67b94" />
+### Editar <img width="32" height="32" alt="pen" src="https://github.com/user-attachments/assets/f0178cc6-a1be-42ff-8452-345ec8847b1b" />
+
 
 
 ---
