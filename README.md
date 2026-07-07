@@ -60,30 +60,6 @@
 
 ---
 
-## Como Usar
-
-### Instalação e Execução
-
-1. Instale as dependências:
-
-```bash
-npm install
-```
-
-2. Execute em modo desenvolvimento:
-
-```bash
-npm start
-```
-
-3. Para build de distribuição:
-
-```bash
-npm run dist
-```
-
----
-
 ### Adicionando Músicas
 
 
@@ -93,8 +69,8 @@ npm run dist
 1. Clique no menu (hambúrguer) no topo
 2. Selecione "Adicionar música"
 3. Escolha um arquivo MP3
-4. Os metadados serão extraídos automaticamente
-5. Edite se necessário e salve
+4. Os metadados serão extraídos automaticamente (Ou quase isso)
+5. Edite se necessário e salve (Provavelmente necessário)
 
 
 ---
@@ -108,8 +84,10 @@ npm run dist
 
 ## Próximos Passos Potenciais
 
-- créditos no drawer
-- ajustar css do habilitar e desabilitar, quando ativada a função ele quebra o css
+- Mudança do design da Biblioteca.
+- Colocar uma LICENSE
+- Fazer pre-release
+- Add Auto-Update (electron-builder suporta auto-update)
 
 
 

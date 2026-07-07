@@ -44,11 +44,16 @@
       ]
     },
     "linux": {
-      "icon": "src/Assets/logo.png",
+      "icon": "build/icons/icon.png",
+      "desktopName": "sompur",
       "target": [
         "AppImage",
         "deb"
       ]
+    },
+    "publish": {
+      "provider": "github",
+      "releaseType": "draft"
     }
   },
   "devDependencies": {
