@@ -85,8 +85,7 @@
 ## Próximos Passos Potenciais
 
 - Mudança do design da Biblioteca.
-- Colocar uma LICENSE
-- Fazer pre-release
+
 - Add Auto-Update (electron-builder suporta auto-update)
 
 
