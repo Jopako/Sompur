@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Sompur - um player de música desktop.",
   "license": "MIT",
+  "desktopName": "sompur",
   "author": {
     "name": "João Paulo Kowalski",
     "email": "173004112+Jopako@users.noreply.github.com"
@@ -46,7 +47,7 @@
     },
     "linux": {
       "icon": "build/icons/icon.png",
-      "desktopName": "sompur",
+      "syncDesktopName": true,
       "target": [
         "AppImage",
         "deb"
