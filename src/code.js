@@ -1,4 +1,3 @@
-const { ipcRenderer, shell } = require("electron");
 
 document.addEventListener("DOMContentLoaded", async function () {
 
@@ -6,7 +5,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     title: "",
     author: "",
     audio: "",
-    image: "Assets/fundo.webp", 
+    image: "Assets/fundo.webp",
     isPlaceholder: true,
   };
 
@@ -150,7 +149,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   importArea.addEventListener("click", async () => {
     badgeReading.style.display = "flex";
     badgeAuto.style.display    = "none";
-    const meta = await ipcRenderer.invoke("importar-mp3");
+    const meta = await window.sompur.importarMP3();
     badgeReading.style.display = "none";
     if (!meta) return;
 
@@ -183,7 +182,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
   btnTrocarCapa.addEventListener("click", async (e) => {
     e.stopPropagation();
-    const base64 = await ipcRenderer.invoke("importar-capa");
+    const base64 = await window.sompur.importarCapa();
     if (!base64) return;
     capaAtualBase64 = base64;
     setCapa(base64, "Capa personalizada", "Importada manualmente");
@@ -213,7 +212,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     btnSalvar.textContent = "Salvando…";
     btnSalvar.disabled    = true;
 
-    const result = await ipcRenderer.invoke("salvar-musica", dados);
+    const result = await window.sompur.salvarMusica(dados);
 
     if (result && result.id) {
       songs = songs.filter((s) => !s.isPlaceholder);
@@ -241,7 +240,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 //modal da biblioteca
   async function abrirBiblioteca() {
     fecharDrawer();
-    const musicas = await ipcRenderer.invoke("listar-musicas");
+    const musicas = await window.sompur.listarMusicas()
     renderBiblioteca(musicas);
     modalBiblioteca.classList.add("open");
   }
@@ -316,7 +315,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     listaMusicas.querySelectorAll(".bib-del").forEach((btn) => {
       btn.addEventListener("click", async () => {
         const id = Number(btn.dataset.id);
-        await ipcRenderer.invoke("deletar-musica", id);
+        await window.sompur.deletarMusica(id);
 
         const idxNaSongs = songs.findIndex((s) => s.id === id);
         if (idxNaSongs !== -1) {
@@ -361,10 +360,10 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
   devGithubLink.addEventListener("click", (e) => {
     e.preventDefault();
-    shell.openExternal("https://github.com/Jopako/Sompur");
+    window.sompur.abrirRepositorio();
   });
 
- 
+
 
   function abrirModalEditar(musica) {
     editarIdAtual   = musica.id;
@@ -404,7 +403,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
   editarBtnTrocarCapa.addEventListener("click", async () => {
-    const base64 = await ipcRenderer.invoke("importar-capa");
+    const base64 = await window.sompur.importarCapa();
     if (!base64) return;
     editarCapaBase64 = base64;
     editarCapaMudou  = true;
@@ -431,7 +430,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     };
 
     try {
-      await ipcRenderer.invoke("atualizar-musica", dados);
+      await window.sompur.atualizarMusica(dados);
 
 
       const item = listaMusicas.querySelector(`.bib-item[data-id="${editarIdAtual}"]`);
@@ -472,7 +471,7 @@ document.addEventListener("DOMContentLoaded", async function () {
   });
 
 
-  
+
   async function abrirConfigMov() {
     fecharDrawer();
     movimentacaoHabilitada = !movimentacaoHabilitada;
@@ -486,7 +485,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
 
   try {
-    const musicasSalvas = await ipcRenderer.invoke("listar-musicas");
+    const musicasSalvas = await window.sompur.listarMusicas()
     if (musicasSalvas && musicasSalvas.length > 0) {
       songs = musicasSalvas.map((m) => ({
         title:  m.titulo,
