@@ -1,6 +1,6 @@
 {
-  "name": "meu-app",
-  "version": "1.0.8",
+  "name": "sompur",
+  "version": "1.0.9",
   "description": "Sompur - um player de música desktop.",
   "license": "MIT",
   "desktopName": "sompur",
@@ -22,9 +22,16 @@
       "output": "dist",
       "buildResources": "build"
     },
+    "deb": {
+      "fpm": [
+        "--conflicts=meu-app",
+        "--replaces=meu-app"
+      ]
+    },
     "files": [
       "src/**/*",
       "main.js",
+      "preload.js",
       "package.json"
     ],
     "asar": true,
@@ -59,14 +66,16 @@
     }
   },
   "devDependencies": {
-    "electron": "^32.3.3",
-    "electron-builder": "^26.0.12",
-    "electron-packager": "^17.1.2",
-    "electron-reload": "^2.0.0-alpha.1",
-    "electronmon": "^2.0.3"
+    "electron": "^44.9.2",
+    "electron-builder": "26.15.3",
+    "node-abi": "^4.38.0"
   },
   "dependencies": {
-    "better-sqlite3": "^12.10.0",
+    "better-sqlite3": "13.0.3",
     "music-metadata": "^11.13.0"
+  },
+  "allowScripts": {
+    "better-sqlite3@13.0.3": true,
+    "electron-winstaller@5.4.0": true
   }
 }

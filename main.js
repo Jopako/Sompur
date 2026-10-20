@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require("electron");
+const { app, BrowserWindow, ipcMain, dialog, shell } = require("electron");
 const path = require("path");
 const fs = require("fs");
 
@@ -9,13 +9,14 @@ let db;
 
 function initDB() {
   const dataDir = path.dirname(DB_PATH);
+
   if (!fs.existsSync(dataDir)) {
     fs.mkdirSync(dataDir, { recursive: true });
-     console.log(app.getPath("userData"))
   }
 
   db = new Database(DB_PATH);
   console.log("Database criado em:", DB_PATH);
+
   db.exec(`
     CREATE TABLE IF NOT EXISTS musicas (
       id       INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -33,13 +34,13 @@ function initDB() {
 ipcMain.handle("importar-mp3", async () => {
   const { parseFile } = await import("music-metadata");
 
-  const { filePaths } = await dialog.showOpenDialog({
+  const { filePaths, canceled } = await dialog.showOpenDialog({
     title: "Selecionar MP3",
     filters: [{ name: "Áudio", extensions: ["mp3"] }],
     properties: ["openFile"],
   });
 
-  if (!filePaths || !filePaths.length) return null;
+  if (canceled || !filePaths?.length) return null;
 
   const caminho = filePaths[0];
 
@@ -49,13 +50,13 @@ ipcMain.handle("importar-mp3", async () => {
 
     let capaBase64 = null;
 
-    if (meta.common.picture && meta.common.picture.length > 0) {
+    if (meta.common.picture?.length > 0) {
       const pic = meta.common.picture[0];
       capaBase64 = `data:${pic.format};base64,${pic.data.toString("base64")}`;
     }
 
     return {
-      titulo: title || path.basename(caminho, ".mp3"),
+      titulo: title || path.basename(caminho, path.extname(caminho)),
       autor: artist || "",
       album: album || "",
       ano: year ? String(year) : "",
@@ -67,7 +68,7 @@ ipcMain.handle("importar-mp3", async () => {
     console.error("Erro ao ler metadados:", err);
 
     return {
-      titulo: path.basename(caminho, ".mp3"),
+      titulo: path.basename(caminho, path.extname(caminho)),
       autor: "",
       album: "",
       ano: "",
@@ -79,24 +80,36 @@ ipcMain.handle("importar-mp3", async () => {
 });
 
 ipcMain.handle("importar-capa", async () => {
-  const { filePaths } = await dialog.showOpenDialog({
+  const { filePaths, canceled } = await dialog.showOpenDialog({
     title: "Selecionar capa",
     filters: [{ name: "Imagem", extensions: ["jpg", "jpeg", "png", "webp"] }],
     properties: ["openFile"],
   });
 
-  if (!filePaths || !filePaths.length) return null;
+  if (canceled || !filePaths?.length) return null;
 
-  const buf = fs.readFileSync(filePaths[0]);
-  const ext = path.extname(filePaths[0]).slice(1).replace("jpg", "jpeg");
-  return `data:image/${ext};base64,${buf.toString("base64")}`;
+  const arquivo = filePaths[0];
+  const buf = fs.readFileSync(arquivo);
+  const ext = path.extname(arquivo).slice(1).toLowerCase();
+  const mime = ext === "jpg" ? "jpeg" : ext;
+
+  return `data:image/${mime};base64,${buf.toString("base64")}`;
 });
 
-ipcMain.handle("salvar-musica", (_, dados) => {
-  const musicasDir = path.join(app.getPath("userData"), "musicas");
-  if (!fs.existsSync(musicasDir)) {
-    fs.mkdirSync(musicasDir, { recursive: true });
+ipcMain.handle("salvar-musica", (_event, dados) => {
+  if (!db) throw new Error("Banco de dados ainda não foi inicializado.");
+  if (!dados || typeof dados !== "object") {
+    throw new TypeError("Dados da música inválidos.");
   }
+  if (typeof dados.caminho !== "string" || !dados.caminho.trim()) {
+    throw new TypeError("Caminho da música inválido.");
+  }
+  if (!fs.existsSync(dados.caminho) || !fs.statSync(dados.caminho).isFile()) {
+    throw new Error("O arquivo de música selecionado não existe.");
+  }
+
+  const musicasDir = path.join(app.getPath("userData"), "musicas");
+  fs.mkdirSync(musicasDir, { recursive: true });
 
   const nomeArquivo = path.basename(dados.caminho);
   const caminhoDestino = path.join(musicasDir, nomeArquivo);
@@ -106,7 +119,7 @@ ipcMain.handle("salvar-musica", (_, dados) => {
   }
 
   let capaBlob = null;
-  if (dados.capaBase64) {
+  if (typeof dados.capaBase64 === "string" && dados.capaBase64.includes(",")) {
     const base64Data = dados.capaBase64.split(",")[1];
     capaBlob = Buffer.from(base64Data, "base64");
   }
@@ -115,18 +128,23 @@ ipcMain.handle("salvar-musica", (_, dados) => {
     INSERT INTO musicas (titulo, autor, album, ano, genero, caminho, capa)
     VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
+
   const info = stmt.run(
-    dados.titulo,
-    dados.autor,
-    dados.album,
-    dados.ano,
-    dados.genero,
-    caminhoDestino, 
+    String(dados.titulo || "Sem título").slice(0, 500),
+    String(dados.autor || "").slice(0, 500),
+    String(dados.album || "").slice(0, 500),
+    String(dados.ano || "").slice(0, 20),
+    String(dados.genero || "").slice(0, 200),
+    caminhoDestino,
     capaBlob,
   );
-  return { id: info.lastInsertRowid, caminho: caminhoDestino};
+
+  return { id: info.lastInsertRowid, caminho: caminhoDestino };
 });
+
 ipcMain.handle("listar-musicas", () => {
+  if (!db) throw new Error("Banco de dados ainda não foi inicializado.");
+
   const rows = db.prepare("SELECT * FROM musicas ORDER BY id DESC").all();
 
   return rows.map((row) => ({
@@ -137,36 +155,57 @@ ipcMain.handle("listar-musicas", () => {
   }));
 });
 
-ipcMain.handle("deletar-musica", (_, id) => {
-  db.prepare("DELETE FROM musicas WHERE id = ?").run(id);
+ipcMain.handle("deletar-musica", (_event, id) => {
+  if (!db) throw new Error("Banco de dados ainda não foi inicializado.");
+  const musicId = Number(id);
+  if (!Number.isSafeInteger(musicId) || musicId <= 0) {
+    throw new TypeError("ID da música inválido.");
+  }
+
+  db.prepare("DELETE FROM musicas WHERE id = ?").run(musicId);
   return true;
 });
 
-ipcMain.handle("atualizar-musica", (_, dados) => {
-  if (!db) return false;
+ipcMain.handle("atualizar-musica", (_event, dados) => {
+  if (!db) throw new Error("Banco de dados ainda não foi inicializado.");
+  if (!dados || typeof dados !== "object") {
+    throw new TypeError("Dados da música inválidos.");
+  }
 
-  if (dados.capaBase64) {
+  const musicId = Number(dados.id);
+  if (!Number.isSafeInteger(musicId) || musicId <= 0) {
+    throw new TypeError("ID da música inválido.");
+  }
+
+  const titulo = String(dados.titulo || "Sem título").slice(0, 500);
+  const autor = String(dados.autor || "").slice(0, 500);
+  const album = String(dados.album || "").slice(0, 500);
+  const ano = String(dados.ano || "").slice(0, 20);
+  const genero = String(dados.genero || "").slice(0, 200);
+
+  if (typeof dados.capaBase64 === "string" && dados.capaBase64.includes(",")) {
     const base64Data = dados.capaBase64.split(",")[1];
     const capaBlob = Buffer.from(base64Data, "base64");
+
     db.prepare(`
       UPDATE musicas SET titulo=?, autor=?, album=?, ano=?, genero=?, capa=?
       WHERE id=?
-    `).run(dados.titulo, dados.autor, dados.album, dados.ano, dados.genero, capaBlob, Number(dados.id));
+    `).run(titulo, autor, album, ano, genero, capaBlob, musicId);
   } else {
     db.prepare(`
       UPDATE musicas SET titulo=?, autor=?, album=?, ano=?, genero=?
       WHERE id=?
-    `).run(dados.titulo, dados.autor, dados.album, dados.ano, dados.genero, Number(dados.id));
+    `).run(titulo, autor, album, ano, genero, musicId);
   }
 
   return true;
 });
 
-if (!app.isPackaged) {
-  try {
-    require("electron-reload")(__dirname);
-  } catch (_) {}
-}
+ipcMain.handle("abrir-repositorio", async () => {
+  await shell.openExternal("https://github.com/Jopako/Sompur");
+  return true;
+});
+
 
 app.setName("Sompur");
 app.setAppUserModelId("com.spotiby.app");
@@ -182,8 +221,10 @@ function createWindow() {
     title: "Sompur",
     icon: path.join(__dirname, "src", "Assets", "logo.png"),
     webPreferences: {
-      nodeIntegration: true,
-      contextIsolation: false,
+      preload: path.join(__dirname, "preload.js"),
+      nodeIntegration: false,
+      contextIsolation: true,
+      sandbox: true,
     },
   });
 
@@ -192,7 +233,7 @@ function createWindow() {
 
 app.whenReady().then(() => {
   initDB();
-   console.log(app.getPath("userData"))
+  console.log("Diretório de dados do Sompur:", app.getPath("userData"));
   createWindow();
 });
 
